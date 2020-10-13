@@ -14,11 +14,13 @@ bot.
 """
 
 import logging
+import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 TOKEN = '1319297539:AAHcD1FKY77POML5NflXhlwRUDxTaeGSPV0'
 APP_NAME = 'https://funny-sorteo-bot.herokuapp.com/'
+PORT = int(os.environ.get('PORT', 5000))
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -71,7 +73,7 @@ def main():
 
     # Start the Bot
     updater.start_webhook(listen="0.0.0.0",
-                          port='8443',
+                          port=PORT,
                           url_path=TOKEN)
     # updater.bot.set_webhook(url=settings.WEBHOOK_URL)
     updater.bot.set_webhook(APP_NAME + TOKEN)
