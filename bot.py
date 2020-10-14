@@ -16,6 +16,7 @@ bot.
 import logging
 import os
 
+from mongoengine import connect
 from telegram.ext import Updater
 
 from .src.commands import handlers
@@ -57,5 +58,5 @@ def main():
 
 
 if __name__ == '__main__':
-
+    connect(host=DB_URI)
     main()
