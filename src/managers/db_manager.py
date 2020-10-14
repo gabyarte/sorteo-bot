@@ -7,7 +7,7 @@ class MetaDatabaseManager(type):
     def db(cls):
         return cls.get_db()
 
-class DatabaseManager(metaclass=type):
+class DatabaseManager(metaclass=MetaDatabaseManager):
     _client, _db = None, None
 
     @classmethod
