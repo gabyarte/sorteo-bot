@@ -1,6 +1,6 @@
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
 
-from ..raffle.models import Raffle
+from managers.db_manager import DatabaseManager
 
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 
@@ -41,8 +41,7 @@ def set_max_numbers(update, context):
     max_numbers = update.message.text
     context.user_data['max_numbers'] = int(max_numbers)
 
-    new_raffle = Raffle(**context.user_data)
-    new_raffle.save()
+    DatabaseManager.create_raffle(context.user_data)
 
     context.user_data.clear()
 
