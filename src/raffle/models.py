@@ -30,9 +30,9 @@ class User(Document):
 
 
 class Raffle(Document):
-    product_name = fields.StringField(max_length=50)
-    product_description = fields.StringField()
-    product_image = fields.ImageField()
+    name = fields.StringField(max_length=50)
+    description = fields.StringField()
+    image = fields.ImageField()
     max_numbers = fields.IntField(min_value=1)
     is_open = fields.BooleanField(default=True)
 
