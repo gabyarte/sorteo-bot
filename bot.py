@@ -59,4 +59,5 @@ def main():
 
 if __name__ == '__main__':
     connect(host=DB_URI)
+    logging.info('Connected to mongodb')
     main()
