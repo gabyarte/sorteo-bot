@@ -16,39 +16,19 @@ bot.
 import logging
 import os
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from mongoengine import connect
+from telegram.ext import Updater
+
+from .src.commands import handlers
 
 TOKEN = '1319297539:AAHcD1FKY77POML5NflXhlwRUDxTaeGSPV0'
 APP_NAME = 'https://funny-sorteo-bot.herokuapp.com/'
 PORT = int(os.environ.get('PORT', 5000))
+DB_URI = "mongodb+srv://sorteoUser:XWpNDuXgj5DwEXkN@Sorteo.mongodb.net/test?retryWrites=true&w=majority"
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-
-logger = logging.getLogger(__name__)
-
-
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-
-def help(update, context):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
-
-
-def echo(update, context):
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
-
-
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
@@ -62,14 +42,7 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
-
-    # log all errors
-    dp.add_error_handler(error)
+    dp.add_handler(handlers.create_raffle_handler)
 
     # Start the Bot
     updater.start_webhook(listen="0.0.0.0",
@@ -85,4 +58,5 @@ def main():
 
 
 if __name__ == '__main__':
+    connect(host=DB_URI)
     main()
