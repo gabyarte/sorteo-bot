@@ -5,7 +5,7 @@ from src.managers.db_manager import DatabaseManager
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 
 def start(update, context):
-    admin_name = update.message.from_user.mention_markdown_v2
+    admin_name = update.message.from_user.name
     update.message.reply_text(
         f'Hola admin {admin_name}! Crea un nuevo sorteo siguiendo los pasos que te voy a ir describiendo.\n'
         'Primero, el nombre del sorteo...'
@@ -56,7 +56,7 @@ create_raffle_handler = ConversationHandler(
         NAME: [MessageHandler(Filters.text, set_name)],
         DESCRIPTION: [MessageHandler(Filters.text, set_description)],
         PHOTO: [MessageHandler(Filters.photo, set_photo)],
-        MAX_NUMBERS: [MessageHandler(Filters.regex('^(\d+)$'), set_max_numbers)]
+        MAX_NUMBERS: [MessageHandler(Filters.regex('^\d+$'), set_max_numbers)]
     },
     fallbacks=[]
 )
