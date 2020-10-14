@@ -1,6 +1,6 @@
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
 
-from managers.db_manager import DatabaseManager
+from src.managers.db_manager import DatabaseManager
 
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 
@@ -57,5 +57,6 @@ create_raffle_handler = ConversationHandler(
         DESCRIPTION: [MessageHandler(Filters.text, set_description)],
         PHOTO: [MessageHandler(Filters.photo, set_photo)],
         MAX_NUMBERS: [MessageHandler(Filters.regex('^(\d+)$'), set_max_numbers)]
-    }
+    },
+    fallbacks=[]
 )

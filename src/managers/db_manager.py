@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-import settings
+from src.settings import *
 
 class MetaDatabaseManager(type):
     @property
@@ -13,7 +13,7 @@ class DatabaseManager(metaclass=type):
     @classmethod
     def get_db(cls):
         if cls._client is None:
-            cls._client = MongoClient(settings.DB_URI)
+            cls._client = MongoClient(DB_URI)
             cls._db = cls._client.sorteo
         return cls._db
 
