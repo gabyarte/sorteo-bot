@@ -24,7 +24,7 @@ from .src.commands import handlers
 TOKEN = '1319297539:AAHcD1FKY77POML5NflXhlwRUDxTaeGSPV0'
 APP_NAME = 'https://funny-sorteo-bot.herokuapp.com/'
 PORT = int(os.environ.get('PORT', 5000))
-DB_URI = "mongodb+srv://sorteoUser:XWpNDuXgj5DwEXkN@Sorteo.mongodb.net/test?retryWrites=true&w=majority"
+DB_URI = "mongodb+srv://sorteoUser:XWpNDuXgj5DwEXkN@sorteo.3j78y.mongodb.net/sorteo?retryWrites=true&w=majority"
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
