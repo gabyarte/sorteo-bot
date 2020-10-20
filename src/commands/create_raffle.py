@@ -1,6 +1,5 @@
 import logging
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
-from bson.binary import Binary
 
 from src.db.models import Raffle
 
@@ -19,7 +18,7 @@ def set_name(update, context):
     context.user_data['name'] = name
     update.message.reply_text(
         f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. *Recuerda*, no '
-        'puede exceder de 250 caracteres.'
+        'puede exceder de 250 caracteres.', parse_mode='MarkdownV2'
     )
     return DESCRIPTION
 
@@ -32,8 +31,8 @@ def set_description(update, context):
     return PHOTO
 
 def set_photo(update, context):
-    photo = update.message.photo[-1].get_file().download_as_bytearray()
-    context.user_data['photo'] = Binary(photo)
+    photo = update.message.photo[-1].get_file().file_id
+    context.user_data['photo'] = photo
     update.message.reply_text(
         f'Cuántos usuarios pueden optar por entrar en este sorteo?'
     )
@@ -46,14 +45,24 @@ def set_max_numbers(update, context):
 
     logging.info(f'raffle_data - {context.user_data}')
 
-    Raffle.documents.insert(context.user_data)
+    raffle = Raffle.documents.insert(context.user_data)
+    if raffle:
+        _show_raffle_preview(raffle, update)
 
     context.user_data.clear()
 
     update.message.reply_text(
-        f'Perfecto! Todo listo para el primer sorteo!'
+        f'Perfecto! Todo listo para el sorteo!'
     )
     return ConversationHandler.END
+
+def _show_raffle_preview(raffle, update):
+    text = f'''
+    **{raffle.name.upper()}**
+
+    {raffle.description}
+    '''
+    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='MarkdownV2')
 
 create_raffle_handler = ConversationHandler(
     entry_points=[CommandHandler('crear_sorteo', start)],

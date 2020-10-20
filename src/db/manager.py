@@ -56,7 +56,8 @@ class Documents:
         return set(data.keys()) - set(self._slots) == set()
 
     def insert(self, data):
-        return self._collection.insert_one(data)
+        result = self._collection.insert_one(data)
+        return self._to_model(data) if result.inserted_id else None
 
     def delete(self, document):
         delete_query = {'_id': document} if isinstance(document, int) else document
@@ -64,6 +65,9 @@ class Documents:
 
     def find(self, query):
         return {self._to_model(document) for document in self._collection.find(query, self.fields)}
+
+    def values_list(self, query, value):
+        return [getattr(document, value) for document in self.find(query)]
 
     def update(self, query, data):
         return self._collection.replace_one(query, data)

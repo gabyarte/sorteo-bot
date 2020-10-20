@@ -14,11 +14,11 @@ class User:
 @DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_number')
 class Raffle:
     def available_numbers(self, raffle_id):
-        numbers = Number.objects.find({'raffle_id': raffle_id}, ['number'])
-        taken_numbers = set([document['number'] for document in numbers])
+        taken_numbers = Number.objects.values_list({'raffle_id': raffle_id}, 'number')
+        taken_numbers = set(taken_numbers)
 
-        max_number = Raffle.objects.find({'raffle_id': raffle_id}, ['max_number'])
-        all_numbers = set([document['max_number'] for document in max_number])
+        max_number = Raffle.objects.values_list({'raffle_id': raffle_id}, ['max_number'])[0]
+        all_numbers = set(range(1, max_number + 1))
 
         return all_numbers - taken_numbers
 
