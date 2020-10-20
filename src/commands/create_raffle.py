@@ -42,6 +42,7 @@ def set_photo(update, context):
 def set_max_numbers(update, context):
     max_numbers = update.message.text
     context.user_data['max_numbers'] = int(max_numbers)
+    context.user_data['is_open'] = True
 
     logging.info(f'raffle_data - {context.user_data}')
 
