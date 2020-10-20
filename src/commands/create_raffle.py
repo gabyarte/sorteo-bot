@@ -1,4 +1,6 @@
+import logging
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
+from bson import Binary
 
 from src.db.models import Raffle
 
@@ -31,7 +33,7 @@ def set_description(update, context):
 
 def set_photo(update, context):
     photo = update.message.photo[-1].get_file().download_as_bytearray()
-    context.user_data['photo'] = photo
+    context.user_data['photo'] = Binary(photo)
     update.message.reply_text(
         f'Cuántos usuarios pueden optar por entrar en este sorteo?'
     )
@@ -40,6 +42,8 @@ def set_photo(update, context):
 def set_max_numbers(update, context):
     max_numbers = update.message.text
     context.user_data['max_numbers'] = int(max_numbers)
+
+    logging.info(f'raffle_data - {context.user_data}')
 
     Raffle.objects.insert_one(context.user_data)
 
