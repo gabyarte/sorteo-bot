@@ -1,6 +1,6 @@
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
 
-from src.managers.db_manager import DatabaseManager
+from src.db.models import Raffle
 
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 
@@ -30,7 +30,7 @@ def set_description(update, context):
     return PHOTO
 
 def set_photo(update, context):
-    photo = update.message.photo[-1].get_file()
+    photo = update.message.photo[-1].get_file().download_as_bytearray()
     context.user_data['photo'] = photo
     update.message.reply_text(
         f'Cuántos usuarios pueden optar por entrar en este sorteo?'
@@ -41,7 +41,7 @@ def set_max_numbers(update, context):
     max_numbers = update.message.text
     context.user_data['max_numbers'] = int(max_numbers)
 
-    DatabaseManager.create_raffle(context.user_data)
+    Raffle.objects.insert_one(context.user_data)
 
     context.user_data.clear()
 
