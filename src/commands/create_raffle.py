@@ -58,8 +58,8 @@ def set_max_numbers(update, context):
     return ConversationHandler.END
 
 def _show_raffle_preview(raffle, update):
-    text = escape_markdown(f'*{raffle.name.upper()}* '
-                           f'{raffle.description}', version=2)
+    text = f'*{raffle.name.upper()}*\n\n ' \
+           f'{raffle.description}'
     logging.info(text)
     update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode=ParseMode.MARKDOWN_V2)
 
