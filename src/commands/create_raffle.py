@@ -1,6 +1,7 @@
 import logging
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
 from telegram.utils.helpers import escape_markdown
+from telegram import ParseMode
 
 from src.db.models import Raffle
 
@@ -18,9 +19,7 @@ def set_name(update, context):
     name = update.message.text
     context.user_data['name'] = name
     update.message.reply_text(
-        escape_markdown(f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. *Recuerda*, no '
-        'puede exceder de 250 caracteres.', version=2), parse_mode='MarkdownV2'
-    )
+        f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción.')
     return DESCRIPTION
 
 def set_description(update, context):
@@ -60,8 +59,9 @@ def set_max_numbers(update, context):
 
 def _show_raffle_preview(raffle, update):
     text = escape_markdown(f'*{raffle.name.upper()}* '
-                            '{raffle.description}', version=2)
-    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='MarkdownV2')
+                           f'{raffle.description}', version=2)
+    logging.info(text)
+    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 create_raffle_handler = ConversationHandler(
     entry_points=[CommandHandler('crear_sorteo', start)],
