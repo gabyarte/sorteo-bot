@@ -61,7 +61,7 @@ def set_max_numbers(update, context):
 def _show_raffle_preview(raffle, update):
     text = escape_markdown(f'*{raffle.name.upper()}* '
                             '{raffle.description}', version=2)
-    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='Markdown')
+    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='MarkdownV2')
 
 create_raffle_handler = ConversationHandler(
     entry_points=[CommandHandler('crear_sorteo', start)],
