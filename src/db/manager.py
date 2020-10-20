@@ -25,20 +25,45 @@ class DatabaseManager(metaclass=MetaDatabaseManager):
         return cls._db
 
     @classmethod
-    def collection(cls, *fields):
+    def collection(cls, *slots):
+        def init(self, **fields):
+            for key, value in fields.items():
+                setattr(self, key, value)
+
         def wrapper(model):
-            coll_name = model.__name__.lower()
-            model.objects = cls.db[coll_name] if coll_name in cls.db.list_collection_names() \
-                                              else cls.db.create_collection(coll_name)
-            jsonSchema = {
-                '$jsonSchema': {
-                    'bsonType': 'object',
-                    'required': fields
-                }
-            }
-            cmd = OrderedDict([('collMod', coll_name),
-                               ('validator', jsonSchema),
-                               ('validationLevel', 'moderate')])
-            cls.db.command(cmd)
+            model.__init__ = init
+            model.documents = Documents(cls.db[model.__name__.lower()], slots, model)
             return model
         return wrapper
+
+
+class Documents:
+    def __init__(self, collection, slots, model):
+        self._collection = collection
+        self._slots = slots
+        self._model = model
+
+    def _to_model(self, data):
+        instance = self._model()
+        for key, value in data.items():
+            if key in self._slots:
+                setattr(instance, key, value)
+
+    def _to_dict(self, model):
+        return {slot: getattr(model, slot) for slot in self._slots}
+
+    def is_valid(self, data):
+        return set(data.keys()) - set(self._slots) == set()
+
+    def insert(self, data):
+        return self._collection.insert_one(data) if self.is_valid(data) else 0
+
+    def delete(self, document):
+        delete_query = {'_id': document} if isinstance(document, int) else document
+        return self._collection.delete_one(delete_query) 
+
+    def find(self, query):
+        return {self._to_model(document) for document in self._collection.find(query, self.fields)}
+
+    def update(self, query, data):
+        return self._collection.replace_one(query, data)
