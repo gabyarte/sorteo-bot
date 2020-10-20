@@ -1,6 +1,6 @@
 import logging
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
-from bson import Binary
+from bson import Binary, NumberInt, String
 
 from src.db.models import Raffle
 
@@ -16,7 +16,7 @@ def start(update, context):
 
 def set_name(update, context):
     name = update.message.text
-    context.user_data['name'] = name
+    context.user_data['name'] = String(name)
     update.message.reply_text(
         f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. *Recuerda*, no '
         'puede exceder de 250 caracteres.'
@@ -25,7 +25,7 @@ def set_name(update, context):
 
 def set_description(update, context):
     description = update.message.text
-    context.user_data['description'] = description
+    context.user_data['description'] = String(description)
     update.message.reply_text(
         f'Una foto sería bonita, no crees? Agrega una a continuación.'
     )
@@ -41,7 +41,7 @@ def set_photo(update, context):
 
 def set_max_numbers(update, context):
     max_numbers = update.message.text
-    context.user_data['max_numbers'] = int(max_numbers)
+    context.user_data['max_numbers'] = NumberInt(max_numbers)
     context.user_data['is_open'] = True
 
     logging.info(f'raffle_data - {context.user_data}')
