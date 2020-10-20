@@ -56,7 +56,7 @@ class Documents:
         return set(data.keys()) - set(self._slots) == set()
 
     def insert(self, data):
-        return self._collection.insert_one(data) if self.is_valid(data) else 0
+        return self._collection.insert_one(data)
 
     def delete(self, document):
         delete_query = {'_id': document} if isinstance(document, int) else document
