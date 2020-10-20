@@ -18,8 +18,8 @@ def set_name(update, context):
     name = update.message.text
     context.user_data['name'] = name
     update.message.reply_text(
-        escape_markdown(f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. *Recuerda*, no '
-        'puede exceder de 250 caracteres.', version=2), parse_mode='Markdown'
+        escape_markdown(f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. **Recuerda**, no '
+        'puede exceder de 250 caracteres.', version=2), parse_mode='MarkdownV2'
     )
     return DESCRIPTION
 
