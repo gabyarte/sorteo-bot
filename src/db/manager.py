@@ -57,6 +57,7 @@ class Documents:
 
     def insert(self, data):
         result = self._collection.insert_one(data)
+        logging.info(f'insert - {result}')
         return self._to_model(data) if result.inserted_id else None
 
     def delete(self, document):

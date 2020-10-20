@@ -19,7 +19,7 @@ def set_name(update, context):
     context.user_data['name'] = name
     update.message.reply_text(
         escape_markdown(f'El nombre {name} es realmente bonito. Ahora escribe una pequeña descripción. *Recuerda*, no '
-        'puede exceder de 250 caracteres.', version=2), parse_mode='MarkdownV2'
+        'puede exceder de 250 caracteres.', version=2), parse_mode='Markdown'
     )
     return DESCRIPTION
 
@@ -47,6 +47,7 @@ def set_max_numbers(update, context):
     logging.info(f'raffle_data - {context.user_data}')
 
     raffle = Raffle.documents.insert(context.user_data)
+    logging.info(f'raffle - {raffle}')
     if raffle:
         _show_raffle_preview(raffle, update)
 
@@ -63,7 +64,7 @@ def _show_raffle_preview(raffle, update):
 
     {raffle.description}
     ''', version=2)
-    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='MarkdownV2')
+    update.message.reply_photo(photo=raffle.photo, caption=text, parse_mode='Markdown')
 
 create_raffle_handler = ConversationHandler(
     entry_points=[CommandHandler('crear_sorteo', start)],
