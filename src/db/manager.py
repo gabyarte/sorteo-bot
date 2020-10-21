@@ -45,8 +45,6 @@ class Documents:
         self._fields = fields
 
     def _to_model(self, documents):
-        if documents.count_documents({}) == 1:
-            return self._model(**documents)
         return (self._model(**document) for document in documents)
 
     def all(self):
