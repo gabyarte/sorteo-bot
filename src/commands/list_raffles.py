@@ -18,7 +18,7 @@ def start(update, context):
     raffles_menu = []
     for raffle in raffles:
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
-                                              callback_data=f'show/{raffle._id}'])
+                                              callback_data=f'show/{raffle._id}')])
 
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
