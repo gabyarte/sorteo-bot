@@ -73,20 +73,22 @@ def callback_query_handler(update, context):
 
     cmd, options = query.data.split('/')
 
+    logging.info(f'cmd - {cmd}\noptions - {options}')
+
     if cmd == 'get':
-        raffle_id, user_id = int(options[0]), int(options[1])
+        raffle_id, user_id = options[0], int(options[1])
         get_handler(raffle_id, user_id, update)
 
     if cmd == 'show':
-        raffle_id, user_id = int(options[0]), int(options[1])
+        raffle_id, user_id = options[0], int(options[1])
         show_handler(raffle_id, user_id, update)
 
     if cmd == 'choice':
-        raffle_id, user_id, number = int(options[0]), int(options[1]), int(options[2])
+        raffle_id, user_id, number = options[0], int(options[1]), int(options[2])
         choice_handler(raffle_id, user_id, number, update)
 
     if cmd == 'out':
-        raffle_id, user_id = int(options[0]), int(options[1])
+        raffle_id, user_id = options[0], int(options[1])
         out_handler(raffle_id, user_id, update)
 
     if cmd == 'cancel':
