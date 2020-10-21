@@ -13,13 +13,13 @@ CROSS = u"\u274C"
 def start(update, context):
     raffles = Raffle.documents.find({'is_open': True})
 
-    raffles_menu = InlineKeyboardMarkup()
+    raffles_menu = []
     for raffle in raffles:
-        raffles_menu.add(InlineKeyboardButton(f'*{raffle.name}* ({raffle.taken_numbers_count()}/{raffle.max_number})',
+        raffles_menu.append([InlineKeyboardButton(f'*{raffle.name}* ({raffle.taken_numbers_count()}/{raffle.max_number})',
                                               callback_data=f'show/{raffle._id}',
-                                              parse_mode=ParseMode.MARKDOWN_V2))
+                                              parse_mode=ParseMode.MARKDOWN_V2)])
 
-    update.message.reply_text('Lista de sorteos disponibles:', reply_markup=raffles_menu)
+    update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
 def show_handler(raffle_id, update):
