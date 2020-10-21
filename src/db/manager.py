@@ -74,3 +74,9 @@ class Documents:
 
     def update(self, query, data):
         return self._collection.replace_one(query, data)
+
+    def __getattr__(self, name):
+        try:
+            return getattr(self._collection, name)
+        except:
+            return
