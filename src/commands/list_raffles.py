@@ -20,7 +20,7 @@ def start(update, context):
     raffles_menu = []
     for raffle in raffles:
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
-                                              callback_data=f'show/{raffle._id}/{user_id}')])
+                                              callback_data=f'show/{raffle._id},{user_id}')])
 
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
@@ -32,12 +32,12 @@ def show_handler(raffle_id, user_id, update):
     options_markup = []
     user = User.documents.get(user_id, key='telegram_id')
     if user.can_participate_in_another_raffle() and user.can_take_number(raffle_id):
-        options_markup.append(InlineKeyboardButton('Participar', callback_data=f'get/{raffle_id}'))
+        options_markup.append(InlineKeyboardButton('Participar', callback_data=f'get/{raffle_id},{user_id}'))
     else:
         info = 'No puede escoger número de este sorteo'
 
     if user.in_raffle(raffle_id):
-        options_markup.append(InlineKeyboardButton('Salir', callback_data=f'out/{raffle_id}'))
+        options_markup.append(InlineKeyboardButton('Salir', callback_data=f'out/{raffle_id},{user_id}'))
 
     raffle = Raffle.documents.get(raffle_id)
     show_raffle_preview(raffle, update, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
@@ -49,7 +49,7 @@ def get_handler(raffle_id, user_id, update):
     available_numbers = raffle.available_numbers()
     numbers_markup = []
     for numbers in in_batches(available_numbers, 3):
-        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id}/{user_id}/{i}/') for i in numbers]
+        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers]
         numbers_markup.append(markup)
 
     update.message.reply_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
@@ -74,27 +74,28 @@ def callback_query_handler(update, context):
     query.answer()
 
     cmd, options = query.data.split('/')
+    options = options.split(',')
 
-    logging.info(f'[HANDLER] cmd - {cmd}')
+    logging.info(f'[HANDLER] cmd - {cmd}\noptions - {options}')
 
     if cmd == 'get':
-        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
+        logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         get_handler(raffle_id, user_id, update)
 
     if cmd == 'show':
-        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
+        logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         show_handler(raffle_id, user_id, update)
 
     if cmd == 'choice':
-        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}\nnumber - {options[2]}')
         raffle_id, user_id, number = options[0], int(options[1]), int(options[2])
+        logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}\nnumber - {number}')
         choice_handler(raffle_id, user_id, number, update)
 
     if cmd == 'out':
-        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
+        logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         out_handler(raffle_id, user_id, update)
 
     if cmd == 'cancel':
