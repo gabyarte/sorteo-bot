@@ -7,7 +7,7 @@ class User:
         return raffles_count < 2
 
     def can_take_number(self, raffle_id):
-        numbers_count = Number.documents.count_documents({'raffle_id':raffle_id, 'user_id': self.telegram_id})
+        numbers_count = Number.documents.count_documents({'raffle_id': raffle_id, 'user_id': self.telegram_id})
         return numbers_count < 2
 
     def get_number_in_raffle(self, raffle_id):

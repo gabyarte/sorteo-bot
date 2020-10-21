@@ -1,7 +1,7 @@
 import logging
 
 from pymongo import MongoClient
-from collections import OrderedDict
+from bson import ObjectId
 
 from src.settings import *
 
@@ -51,17 +51,17 @@ class Documents:
         return self.find({})
 
     def get(self, _id, key='_id'):
-        qs = self.find({key: _id})
-        return list(qs)[0] if qs else None
+        value = ObjectId(_id) if isinstance(_id, str) else _id
+        return list(self.find_one({key: value}))
 
     def insert(self, data):
         result = self._collection.insert_one(data)
-        logging.info(f'insert - {result}\ninserted_id - {result.inserted_id}')
-        return self._model(**data) if result.inserted_id else None
+        _id = result.inserted_id
+        logging.info(f'insert - {result}\ninserted_id - {_id}')
+        return self._model(**data, _id=_id) if _id else None
 
     def delete(self, document):
-        delete_query = {'_id': document} if isinstance(document, int) else document
-        return self._collection.delete_many(delete_query) 
+        return self._collection.delete_many(document) 
 
     def find(self, query):
         return self._to_model(self._collection.find(query, self._fields))
