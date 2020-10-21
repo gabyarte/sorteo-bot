@@ -7,7 +7,7 @@ def show_raffle_preview(raffle, update, info='', markup=None):
     
     {raffle.description}
     
-    Disponibles {raffle.taken_numbers_count}/{raffle.max_number}'''
+    Disponibles {raffle.taken_numbers_count()}/{raffle.max_numbers}'''
 
     if info:
         raffle_description += f'\n\n_{info}_'
