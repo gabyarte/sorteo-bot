@@ -11,19 +11,20 @@ CROSS = u"\u274C"
 
 # TODO List raffle pagination
 def start(update, context):
+    context.user = update.message.from_user
+
     raffles = Raffle.documents.find({'is_open': True})
 
     raffles_menu = []
     for raffle in raffles:
-        raffles_menu.append([InlineKeyboardButton(f'*{raffle.name}* ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
-                                              callback_data=f'show/{raffle._id}',
-                                              parse_mode=ParseMode.MARKDOWN_V2)])
+        raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
+                                              callback_data=f'show/{raffle._id}'])
 
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
-def show_handler(raffle_id, update):
-    user_id = update.message.from_user.id
+def show_handler(raffle_id, update, context):
+    user_id = context.user.id
     cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel')]
     info = None
 
@@ -53,14 +54,14 @@ def get_handler(raffle_id, update):
     update.message.reply_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
 
 
-def choice_handler(raffle_id, number, update):
-    user_id = update.message.from_user.id
+def choice_handler(raffle_id, number, update, context):
+    user_id = context.user.id
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
     update.message.reply_text(f'Felicidades! El número {number} dicen que es de la suerte...')
 
 
-def out_handler(raffle_id, update):
-    user_id = update.message.from_user.id
+def out_handler(raffle_id, update, context):
+    user_id = context.user.id
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
     # TODO Notify admins
 
@@ -81,15 +82,18 @@ def callback_query_handler(update, context):
 
     if cmd == 'show':
         raffle_id = int(options[0])
-        show_handler(raffle_id, update)
+        show_handler(raffle_id, update, context)
 
     if cmd == 'choice':
         raffle_id, number = int(options[0]), int(options[1])
-        choice_handler(raffle_id, number, update)
+        choice_handler(raffle_id, number, update, context)
 
     if cmd == 'out':
         raffle_id = int(options[0])
-        out_handler(raffle_id, update)
+        out_handler(raffle_id, update, context)
+
+    if cmd == 'cancel':
+        cancel_handler(update)
 
 list_callback_query_handler = CallbackQueryHandler(callback_query_handler)
 list_raffle_handler = CommandHandler(['ver_sorteos', 'participar'], start)
