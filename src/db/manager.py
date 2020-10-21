@@ -28,7 +28,7 @@ class DatabaseManager(metaclass=MetaDatabaseManager):
     def collection(cls, *slots):
         def init(self, **fields):
             for key, value in fields.items():
-                if key in slots:
+                if key in slots or key == '_id':
                     setattr(self, key, value)
 
         def wrapper(model):
@@ -43,15 +43,21 @@ class Documents:
         self._collection = collection
         self._model = model
 
+    def all(self):
+        return self.find({})
+
+    def get(self, _id, key='_id'):
+        qs = self.find({key: _id})
+        return list(qs)[0] if qs else None
+
     def insert(self, data):
-        logging.info(f'model - {self._model}')
         result = self._collection.insert_one(data)
         logging.info(f'insert - {result}\ninserted_id - {result.inserted_id}')
         return self._model(**data) if result.inserted_id else None
 
     def delete(self, document):
         delete_query = {'_id': document} if isinstance(document, int) else document
-        return self._collection.delete_one(delete_query) 
+        return self._collection.delete_many(delete_query) 
 
     def find(self, query):
         return {self._model(**document) for document in self._collection.find(query, self.fields)}
