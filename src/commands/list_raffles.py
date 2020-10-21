@@ -11,20 +11,19 @@ CROSS = u"\u274C"
 
 # TODO List raffle pagination
 def start(update, context):
-    context.user = update.message.from_user
+    user_id = update.message.from_user.id
 
     raffles = Raffle.documents.find({'is_open': True})
 
     raffles_menu = []
     for raffle in raffles:
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
-                                              callback_data=f'show/{raffle._id}')])
+                                              callback_data=f'show/{raffle._id}/{user_id}')])
 
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
-def show_handler(raffle_id, update, context):
-    user_id = context.user.id
+def show_handler(raffle_id, user_id, update):
     cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel')]
     info = None
 
@@ -42,26 +41,24 @@ def show_handler(raffle_id, update, context):
     show_raffle_preview(raffle, update, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
 
 
-def get_handler(raffle_id, update):
+def get_handler(raffle_id, user_id, update):
     raffle = Raffle.documents.get(raffle_id)
 
     available_numbers = raffle.available_numbers()
     numbers_markup = []
     for numbers in in_batches(available_numbers, 3):
-        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id}/{i}') for i in numbers]
+        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id}/{user_id}/{i}/') for i in numbers]
         numbers_markup.append(markup)
 
     update.message.reply_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
 
 
-def choice_handler(raffle_id, number, update, context):
-    user_id = context.user.id
+def choice_handler(raffle_id, user_id, number, update):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
     update.message.reply_text(f'Felicidades! El número {number} dicen que es de la suerte...')
 
 
-def out_handler(raffle_id, update, context):
-    user_id = context.user.id
+def out_handler(raffle_id, user_id):
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
     # TODO Notify admins
 
@@ -77,20 +74,20 @@ def callback_query_handler(update, context):
     cmd, options = query.data.split('/')
 
     if cmd == 'get':
-        raffle_id = int(options[0])
-        get_handler(raffle_id, update)
+        raffle_id, user_id = int(options[0]), int(options[1])
+        get_handler(raffle_id, user_id, update)
 
     if cmd == 'show':
-        raffle_id = int(options[0])
-        show_handler(raffle_id, update, context)
+        raffle_id, user_id = int(options[0]), int(options[1])
+        show_handler(raffle_id, user_id, update)
 
     if cmd == 'choice':
-        raffle_id, number = int(options[0]), int(options[1])
-        choice_handler(raffle_id, number, update, context)
+        raffle_id, user_id, number = int(options[0]), int(options[1]), int(options[2])
+        choice_handler(raffle_id, user_id, number, update)
 
     if cmd == 'out':
-        raffle_id = int(options[0])
-        out_handler(raffle_id, update, context)
+        raffle_id, user_id = int(options[0]), int(options[1])
+        out_handler(raffle_id, user_id, update)
 
     if cmd == 'cancel':
         cancel_handler(update)
