@@ -66,8 +66,8 @@ class Documents:
     def find(self, query):
         return self._to_model(self._collection.find(query, self._fields))
 
-    def distinct(self, query, distict_key):
-        return self._to_model(self._collection.distict(distict_key, query))
+    def distinct(self, query, distinct_key):
+        return self._to_model(self._collection.distinct(distinct_key, query))
 
     def values_list(self, query, value):
         return [getattr(document, value) for document in self.find(query)]
