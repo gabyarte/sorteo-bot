@@ -17,7 +17,7 @@ class User:
         return len(self.get_number_in_raffle(raffle_id)) > 0
 
 
-@DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_number')
+@DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_numbers')
 class Raffle:
     def taken_numbers(self):
         return Number.documents.values_list({'raffle_id': self._id}, 'number')
@@ -25,7 +25,7 @@ class Raffle:
     def available_numbers(self):
         taken_numbers = set(self.taken_numbers())
 
-        max_number = Raffle.documents.values_list({'raffle_id': self._id}, ['max_number'])[0]
+        max_number = Raffle.documents.values_list({'raffle_id': self._id}, 'max_numbers')[0]
         all_numbers = set(range(1, max_number + 1))
 
         return all_numbers - taken_numbers

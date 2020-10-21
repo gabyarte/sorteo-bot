@@ -15,7 +15,7 @@ def start(update, context):
 
     raffles_menu = []
     for raffle in raffles:
-        raffles_menu.append([InlineKeyboardButton(f'*{raffle.name}* ({raffle.taken_numbers_count()}/{raffle.max_number})',
+        raffles_menu.append([InlineKeyboardButton(f'*{raffle.name}* ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
                                               callback_data=f'show/{raffle._id}',
                                               parse_mode=ParseMode.MARKDOWN_V2)])
 
