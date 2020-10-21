@@ -13,6 +13,8 @@ CROSS = u"\u274C"
 def start(update, context):
     user_id = update.message.from_user.id
 
+    logging.info(f'[START] user_id - {user_id}')
+
     raffles = Raffle.documents.find({'is_open': True})
 
     raffles_menu = []
@@ -73,21 +75,25 @@ def callback_query_handler(update, context):
 
     cmd, options = query.data.split('/')
 
-    logging.info(f'cmd - {cmd}\noptions - {options}')
+    logging.info(f'[HANDLER] cmd - {cmd}')
 
     if cmd == 'get':
+        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
         get_handler(raffle_id, user_id, update)
 
     if cmd == 'show':
+        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
         show_handler(raffle_id, user_id, update)
 
     if cmd == 'choice':
+        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}\nnumber - {options[2]}')
         raffle_id, user_id, number = options[0], int(options[1]), int(options[2])
         choice_handler(raffle_id, user_id, number, update)
 
     if cmd == 'out':
+        logging.info(f'[HANDLER] raffle_id - {options[0]}\nuser_id - {options[1]}')
         raffle_id, user_id = options[0], int(options[1])
         out_handler(raffle_id, user_id, update)
 
