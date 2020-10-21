@@ -44,6 +44,11 @@ class Documents:
         self._model = model
         self._fields = fields
 
+    def _to_model(self, documents):
+        if documents.count_documents({}) == 1:
+            return self._model(**documents)
+        return (self._model(**document) for document in documents)
+
     def all(self):
         return self.find({})
 
@@ -61,7 +66,10 @@ class Documents:
         return self._collection.delete_many(delete_query) 
 
     def find(self, query):
-        return {self._model(**document) for document in self._collection.find(query, self._fields)}
+        return self._to_model(self._collection.find(query, self._fields))
+
+    def find_distinct(self, query, distict_key):
+        return self._to_model(self._collection.find(query, self._fields).distict(distict_key))
 
     def values_list(self, query, value):
         return [getattr(document, value) for document in self.find(query)]

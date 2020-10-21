@@ -3,7 +3,7 @@ from src.db.manager import DatabaseManager
 @DatabaseManager.collection('telegram_id', 'is_admin', 'is_blocked')
 class User:
     def can_participate_in_another_raffle(self):
-        raffles_count = Number.documents.find({'user_id': self.telegram_id}).distinct('raffle_id').count_documents({})
+        raffles_count = len(list(Number.documents.find_distinct({'user_id': self.telegram_id}, 'raffle_id')))
         return raffles_count < 2
 
     def can_take_number(self, raffle_id):
