@@ -33,15 +33,16 @@ class DatabaseManager(metaclass=MetaDatabaseManager):
 
         def wrapper(model):
             model.__init__ = init
-            model.documents = Documents(cls.db[model.__name__.lower()], model)
+            model.documents = Documents(cls.db[model.__name__.lower()], model, slots)
             return model
         return wrapper
 
 
 class Documents:
-    def __init__(self, collection, model):
+    def __init__(self, collection, model, fields):
         self._collection = collection
         self._model = model
+        self._fields = fields
 
     def all(self):
         return self.find({})
@@ -60,7 +61,7 @@ class Documents:
         return self._collection.delete_many(delete_query) 
 
     def find(self, query):
-        return {self._model(**document) for document in self._collection.find(query, self.fields)}
+        return {self._model(**document) for document in self._collection.find(query, self._fields)}
 
     def values_list(self, query, value):
         return [getattr(document, value) for document in self.find(query)]
