@@ -52,7 +52,7 @@ class Documents:
 
     def get(self, _id, key='_id'):
         value = ObjectId(_id) if isinstance(_id, str) else _id
-        return list(self.find_one({key: value}))
+        return self._model(**self.find_one({key: value}))
 
     def insert(self, data):
         result = self._collection.insert_one(data)
