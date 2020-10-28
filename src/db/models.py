@@ -5,7 +5,7 @@ from src.db.manager import DatabaseManager
 class User:
 
     def can_participate_in_another_raffle(self):
-        raffles_count = len(list(Number.documents.distinct({'user_id': self.telegram_id}, 'raffle_id')))
+        raffles_count = len(Number.documents.distinct({'user_id': self.telegram_id}, 'raffle_id'))
         return raffles_count < 2
 
     def can_take_number(self, raffle_id):
@@ -23,7 +23,9 @@ class User:
 class Raffle:
 
     def taken_numbers(self):
-        return Number.documents.values_list({'raffle_id': self._id}, 'number')
+        numbers = Number.documents.values_list({'raffle_id': self._id}, 'number')
+        logging.info(f'[MODEL taken_numbers] numbers - {numbers}')
+        return numbers
 
     def available_numbers(self):
         taken_numbers = set(self.taken_numbers())

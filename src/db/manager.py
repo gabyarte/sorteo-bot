@@ -70,11 +70,11 @@ class Documents:
         return self._to_model(self._collection.find(query, self._fields))
 
     def distinct(self, query, distinct_key):
-        return self._to_model(self._collection.distinct(distinct_key, query))
+        return self._collection.distinct(distinct_key, query)
 
     def values_list(self, query, value):
         documents = self.find(query)
-        logging.info(f'[MANAGER values_list] documents - {documents}')
+        logging.info(f'[MANAGER values_list] documents - {list(documents)}')
         return [getattr(document, value) for document in documents]
 
     def update(self, query, data):
