@@ -57,7 +57,7 @@ class Documents:
     def insert(self, data):
         result = self._collection.insert_one(data)
         _id = result.inserted_id
-        logging.info(f'insert - {result}\ninserted_id - {_id}')
+        logging.info(f'[MANAGER insert] insert - {result}\ninserted_id - {_id}')
         if _id:
             data.update({'_id': _id})
             return self._model(**data)
@@ -74,7 +74,7 @@ class Documents:
 
     def values_list(self, query, value):
         documents = self.find(query)
-        logging.info(f'[MANAGER values_list] documents - {list(documents)}')
+        logging.info(f'[MANAGER values_list] query - {query}\ndocuments - {list(documents)}')
         return [getattr(document, value) for document in documents]
 
     def update(self, query, data):
