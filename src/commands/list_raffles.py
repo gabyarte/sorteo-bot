@@ -54,16 +54,17 @@ def get_handler(raffle_id, user_id, query):
         markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers if i]
         numbers_markup.append(markup)
 
-    query.message.reply_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
+    query.message.edit_message_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
 
 
 def choice_handler(raffle_id, user_id, number, query):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
-    query.message.reply_text(f'Felicidades! El número {number.number} dicen que es de la suerte...')
+    query.message.edit_message_text(f'Felicidades! El número {number.number} dicen que es de la suerte...')
 
 
 def out_handler(raffle_id, user_id):
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
+    query.message.edit_message_text('Sentimos verte partir :pensive:')
     # TODO Notify admins
 
 
@@ -81,22 +82,22 @@ def callback_query_handler(update, context):
     logging.info(f'[HANDLER] cmd - {cmd}\noptions - {options}')
 
     if cmd == 'get':
-        raffle_id, user_id = options[0], options[1]
+        raffle_id, user_id = options[0], int(options[1])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         get_handler(raffle_id, user_id, query)
 
     if cmd == 'show':
-        raffle_id, user_id = options[0], options[1]
+        raffle_id, user_id = options[0], int(options[1])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         show_handler(raffle_id, user_id, query)
 
     if cmd == 'choice':
-        raffle_id, user_id, number = options[0], options[1], int(options[2])
+        raffle_id, user_id, number = options[0], int(options[1]), int(options[2])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}\nnumber - {number}')
         choice_handler(raffle_id, user_id, number, query)
 
     if cmd == 'out':
-        raffle_id, user_id = options[0], options[1]
+        raffle_id, user_id = options[0], int(options[1])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         out_handler(raffle_id, user_id, query)
 

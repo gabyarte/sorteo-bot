@@ -51,7 +51,7 @@ class Documents:
         return self.find({})
 
     def get(self, _id, key='_id'):
-        value = _id if isinstance(_id, ObjectId) else ObjectId(_id)
+        value = _id if key != '_id' or isinstance(_id, ObjectId) else ObjectId(_id)
         return self._model(**self.find_one({key: value}))
 
     def insert(self, data):
