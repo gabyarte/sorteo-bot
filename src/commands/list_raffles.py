@@ -54,17 +54,17 @@ def get_handler(raffle_id, user_id, query):
         markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers if i]
         numbers_markup.append(markup)
 
-    query.message.edit_message_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
+    query.edit_message_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
 
 
 def choice_handler(raffle_id, user_id, number, query):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
-    query.message.edit_message_text(f'Felicidades! El número {number.number} dicen que es de la suerte...')
+    query.edit_message_text(f'Felicidades! El número {number.number} dicen que es de la suerte :wink:...')
 
 
-def out_handler(raffle_id, user_id):
+def out_handler(raffle_id, user_id, query):
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
-    query.message.edit_message_text('Sentimos verte partir :pensive:')
+    query.edit_message_text('Sentimos verte partir :pensive:')
     # TODO Notify admins
 
 
