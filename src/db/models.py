@@ -1,3 +1,4 @@
+import logging
 from src.db.manager import DatabaseManager
 
 @DatabaseManager.collection('telegram_id', 'is_admin', 'is_blocked')
@@ -24,6 +25,7 @@ class Raffle:
 
     def available_numbers(self):
         taken_numbers = set(self.taken_numbers())
+        logging.info(f'[MODEL available_numbers] taken_numbers - {taken_numbers}')
         all_numbers = set(range(1, self.max_numbers + 1))
         return all_numbers - taken_numbers
 

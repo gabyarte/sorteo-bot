@@ -26,7 +26,7 @@ def start(update, context):
 
 
 def show_handler(raffle_id, user_id, query):
-    cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel')]
+    cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
     info = None
 
     options_markup = []
