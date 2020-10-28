@@ -46,11 +46,11 @@ def show_handler(raffle_id, user_id, query):
 
 def get_handler(raffle_id, user_id, query):
     raffle = Raffle.documents.get(raffle_id)
-    logging.info(f'[GET HANDLER] {raffle}')
+    logging.info(f'[HANDLER get] {raffle}')
 
     available_numbers = raffle.available_numbers()
     numbers_markup = []
-    for numbers in in_batches(available_numbers, 3):
+    for numbers in in_batches(available_numbers, 4):
         markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers if i]
         numbers_markup.append(markup)
 
@@ -81,22 +81,22 @@ def callback_query_handler(update, context):
     logging.info(f'[HANDLER] cmd - {cmd}\noptions - {options}')
 
     if cmd == 'get':
-        raffle_id, user_id = options[0], int(options[1])
+        raffle_id, user_id = options[0], options[1]
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         get_handler(raffle_id, user_id, query)
 
     if cmd == 'show':
-        raffle_id, user_id = options[0], int(options[1])
+        raffle_id, user_id = options[0], options[1]
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         show_handler(raffle_id, user_id, query)
 
     if cmd == 'choice':
-        raffle_id, user_id, number = options[0], int(options[1]), int(options[2])
+        raffle_id, user_id, number = options[0], options[1], int(options[2])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}\nnumber - {number}')
         choice_handler(raffle_id, user_id, number, query)
 
     if cmd == 'out':
-        raffle_id, user_id = options[0], int(options[1])
+        raffle_id, user_id = options[0], options[1]
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         out_handler(raffle_id, user_id, query)
 
