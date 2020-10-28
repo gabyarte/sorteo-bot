@@ -58,7 +58,10 @@ class Documents:
         result = self._collection.insert_one(data)
         _id = result.inserted_id
         logging.info(f'insert - {result}\ninserted_id - {_id}')
-        return self._model(**data, _id=_id) if _id else None
+        if _id:
+            data.update({'_id': _id})
+            return self._model(**data)
+        return None
 
     def delete(self, document):
         return self._collection.delete_many(document) 

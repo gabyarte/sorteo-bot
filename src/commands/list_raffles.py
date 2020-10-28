@@ -51,7 +51,7 @@ def get_handler(raffle_id, user_id, query):
     available_numbers = raffle.available_numbers()
     numbers_markup = []
     for numbers in in_batches(available_numbers, 3):
-        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers]
+        markup = [InlineKeyboardButton(str(i), callback_data=f'choice/{raffle_id},{user_id},{i}') for i in numbers if i]
         numbers_markup.append(markup)
 
     query.message.reply_text('Escoge un número disponible:', reply_markup=InlineKeyboardMarkup(numbers_markup))
@@ -59,7 +59,7 @@ def get_handler(raffle_id, user_id, query):
 
 def choice_handler(raffle_id, user_id, number, query):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
-    query.message.reply_text(f'Felicidades! El número {number} dicen que es de la suerte...')
+    query.message.reply_text(f'Felicidades! El número {number.number} dicen que es de la suerte...')
 
 
 def out_handler(raffle_id, user_id):
