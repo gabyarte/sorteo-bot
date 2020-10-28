@@ -23,7 +23,7 @@ class User:
 class Raffle:
 
     def taken_numbers(self):
-        numbers = Number.documents.values_list({'raffle_id': self._id}, 'number')
+        numbers = Number.documents.values_list({'raffle_id': str(self._id)}, 'number')
         logging.info(f'[MODEL taken_numbers] numbers - {numbers}')
         return numbers
 
