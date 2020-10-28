@@ -51,7 +51,7 @@ class Documents:
         return self.find({})
 
     def get(self, _id, key='_id'):
-        value = ObjectId(_id) if isinstance(_id, str) else _id
+        value = _id if isinstance(_id, ObjectId) else ObjectId(_id)
         return self._model(**self.find_one({key: value}))
 
     def insert(self, data):
@@ -70,7 +70,9 @@ class Documents:
         return self._to_model(self._collection.distinct(distinct_key, query))
 
     def values_list(self, query, value):
-        return [getattr(document, value) for document in self.find(query)]
+        documents = self.find(query)
+        logging.info(f'[MANAGER values_list] documents - {documents}')
+        return [getattr(document, value) for document in documents]
 
     def update(self, query, data):
         return self._collection.replace_one(query, data)

@@ -46,6 +46,7 @@ def show_handler(raffle_id, user_id, query):
 
 def get_handler(raffle_id, user_id, query):
     raffle = Raffle.documents.get(raffle_id)
+    logging.info(f'[GET HANDLER] {raffle}')
 
     available_numbers = raffle.available_numbers()
     numbers_markup = []
