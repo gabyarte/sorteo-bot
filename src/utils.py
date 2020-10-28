@@ -1,7 +1,7 @@
 from telegram import ParseMode
 
 
-def show_raffle_preview(raffle, update, info='', markup=None):
+def show_raffle_preview(raffle, updater, info='', markup=None):
     raffle_description = f'''
     *{raffle.name.upper()}*
     
@@ -12,10 +12,10 @@ def show_raffle_preview(raffle, update, info='', markup=None):
     if info:
         raffle_description += f'\n\n_{info}_'
 
-    update.message.reply_photo(photo=raffle.photo,
-                               caption=raffle_description,
-                               parse_mode=ParseMode.MARKDOWN_V2,
-                               reply_markup=markup)
+    updater.message.reply_photo(photo=raffle.photo,
+                                caption=raffle_description,
+                                parse_mode=ParseMode.MARKDOWN_V2,
+                                reply_markup=markup)
 
 
 def in_batches(iterator, size):
