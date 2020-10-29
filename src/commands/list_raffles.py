@@ -3,12 +3,12 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from src.db.models import Raffle, User, Number
-from src.utils import show_raffle_preview, in_batches
+from src.utils.utils import show_raffle_preview, in_batches
+from src.utils.emojis import CROSS, PENSIVE, WINK
 
-CROSS = u"\u274C"
 
 # TODO Add privileges check
-
+# TODO Add emojis
 # TODO List raffle pagination
 def start(update, context):
     user_id = update.message.from_user.id
@@ -22,6 +22,7 @@ def start(update, context):
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
                                               callback_data=f'show/{raffle._id},{user_id}')])
 
+    # TODO Add cancel button in list
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
@@ -46,6 +47,8 @@ def show_handler(raffle_id, user_id, query):
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle:
+        # TODO Instead of reply_text, use edit_text so the list disappear
+        # TODO Also add go back to list
         show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
 
 
@@ -65,12 +68,12 @@ def get_handler(raffle_id, user_id, query):
 
 def choice_handler(raffle_id, user_id, number, query):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
-    query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte :wink:...')
+    query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
 
 
 def out_handler(raffle_id, user_id, query):
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
-    query.edit_message_caption('Sentimos verte partir :pensive:')
+    query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
     # TODO Notify admins
 
 

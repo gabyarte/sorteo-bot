@@ -1,0 +1,5 @@
+CROSS = u"\u274C"
+WINK = u"\uF609"
+RELAX = u"\uF60C"
+PENSIVE = u"\uF614"
+SMIRK = u"\uF60F"

@@ -3,7 +3,7 @@ from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Fi
 from telegram import ParseMode
 
 from src.db.models import Raffle
-from src.utils import show_raffle_preview
+from src.utils.utils import show_raffle_preview
 
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 

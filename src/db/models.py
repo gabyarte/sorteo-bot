@@ -1,7 +1,7 @@
 import logging
 
 from src.db.manager import DatabaseManager
-from src.utils import get_numbers
+from src.utils.utils import get_numbers
 
 @DatabaseManager.collection('telegram_id', 'is_admin', 'is_blocked')
 class User:
