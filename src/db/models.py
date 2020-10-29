@@ -42,4 +42,5 @@ class Raffle:
 
 @DatabaseManager.collection('user_id', 'raffle_id', 'number')
 class Number:
-    pass
+    def __str__(self):
+        return str(self.number)
