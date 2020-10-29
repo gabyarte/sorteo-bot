@@ -31,12 +31,17 @@ def show_handler(raffle_id, user_id, query):
 
     options_markup = []
     user = User.documents.get(user_id, key='telegram_id')
-    if user.can_participate_in_another_raffle() and user.can_take_number(raffle_id):
+
+    another_raffle = user.can_participate_in_another_raffle()
+    can_take_number = user.can_take_number(raffle_id)
+    in_raffle = user.in_raffle(raffle_id)
+
+    if (another_raffle and can_take_number) or (not another_raffle and can_take_number and in_raffle):
         options_markup.append(InlineKeyboardButton('Participar', callback_data=f'get/{raffle_id},{user_id}'))
     else:
         info = 'No puede escoger número de este sorteo'
 
-    if user.in_raffle(raffle_id):
+    if in_raffle:
         options_markup.append(InlineKeyboardButton('Salir', callback_data=f'out/{raffle_id},{user_id}'))
 
     raffle = Raffle.documents.get(raffle_id)

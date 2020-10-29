@@ -72,16 +72,11 @@ class Documents:
     def distinct(self, query, distinct_key):
         return self._collection.distinct(distinct_key, query)
 
-    def values_list(self, query, value):
-        documents = self.find(query)
-        logging.info(f'[MANAGER values_list] query - {query}\ndocuments - {list(documents)}')
-        return [getattr(document, value) for document in documents]
-
     def update(self, query, data):
         return self._collection.replace_one(query, data)
 
+    def count(self, query):
+        return self._collection.count_documents(query)
+
     def __getattr__(self, name):
-        try:
-            return getattr(self._collection, name)
-        except:
-            return
+        return getattr(self._collection, name)

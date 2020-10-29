@@ -1,5 +1,7 @@
 import logging
+
 from src.db.manager import DatabaseManager
+from src.utils import get_numbers
 
 @DatabaseManager.collection('telegram_id', 'is_admin', 'is_blocked')
 class User:
@@ -9,21 +11,24 @@ class User:
         return raffles_count < 2
 
     def can_take_number(self, raffle_id):
-        numbers_count = Number.documents.count_documents({'raffle_id': raffle_id, 'user_id': self.telegram_id})
+        numbers_count = self.numbers_in_raffle(raffle_id)
         return numbers_count < 2
 
+    def numbers_in_raffle(self, raffle_id):
+        return Number.documents.count({'raffle_id': raffle_id, 'user_id': self.telegram_id})
+
     def get_number_in_raffle(self, raffle_id):
-        return Number.documents.values_list({'raffle_id': raffle_id, 'user_id': self.telegram_id}, 'number')
+        return get_numbers({'raffle_id': raffle_id, 'user_id': self.telegram_id})
 
     def in_raffle(self, raffle_id):
-        return len(self.get_number_in_raffle(raffle_id)) > 0
+        return self.numbers_in_raffle() > 0
 
 
 @DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_numbers')
 class Raffle:
 
     def taken_numbers(self):
-        numbers = Number.documents.values_list({'raffle_id': str(self._id)}, 'number')
+        numbers = get_numbers({'raffle_id': str(self._id)})
         logging.info(f'[MODEL taken_numbers] numbers - {numbers}')
         return numbers
 
@@ -43,4 +48,4 @@ class Raffle:
 @DatabaseManager.collection('user_id', 'raffle_id', 'number')
 class Number:
     def __str__(self):
-        return str(self.number)
+        return f'Number ({self.number})'
