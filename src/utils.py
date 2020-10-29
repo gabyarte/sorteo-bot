@@ -1,7 +1,5 @@
 from telegram import ParseMode
 
-from src.db.models import Number
-
 
 def show_raffle_preview(raffle, updater, info='', markup=None):
     raffle_description = f'''
@@ -34,4 +32,6 @@ def in_batches(iterator, size):
 
 
 def get_numbers(query):
+    from src.db.models import Number
+
     return [number.number for number in Number.documents.find(query)]
