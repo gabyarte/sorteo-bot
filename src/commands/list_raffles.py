@@ -48,9 +48,8 @@ def show_handler(raffle_id, user_id, query):
     if raffle:
         # TODO Instead of reply_text, use edit_text so the list disappear
         # TODO Also add go back to list
-        query.message.delete()
         go_back_markup = [InlineKeyboardButton('Volver', callback_data=f'back/')]
-        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup, go_back_markup]))
+        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, go_back_markup, cancel_markup]), edit=True)
 
 
 def get_handler(raffle_id, user_id, query):
