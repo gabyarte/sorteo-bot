@@ -8,7 +8,6 @@ from src.utils.emojis import CROSS, PENSIVE, WINK
 
 
 # TODO Add privileges check
-# TODO Add emojis
 # TODO List raffle pagination
 def start(update, context):
     user_id = update.message.from_user.id
@@ -49,7 +48,9 @@ def show_handler(raffle_id, user_id, query):
     if raffle:
         # TODO Instead of reply_text, use edit_text so the list disappear
         # TODO Also add go back to list
-        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
+        query.message.delete()
+        go_back_markup = [InlineKeyboardButton('Volver', callback_data=f'back/')]
+        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup, go_back_markup]))
 
 
 def get_handler(raffle_id, user_id, query):
@@ -67,6 +68,7 @@ def get_handler(raffle_id, user_id, query):
 
 
 def choice_handler(raffle_id, user_id, number, query):
+    # TODO Close raffle if there are no more numbers
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
 
@@ -112,6 +114,9 @@ def callback_query_handler(update, context):
 
     if cmd == 'cancel':
         cancel_handler(query)
+
+    if cmd == 'back':
+        start(query, context)
 
 list_callback_query_handler = CallbackQueryHandler(callback_query_handler)
 list_raffle_handler = CommandHandler(['ver_sorteos', 'participar'], start)
