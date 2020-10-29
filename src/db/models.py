@@ -21,7 +21,7 @@ class User:
         return get_numbers({'raffle_id': raffle_id, 'user_id': self.telegram_id})
 
     def in_raffle(self, raffle_id):
-        return self.numbers_in_raffle() > 0
+        return self.numbers_in_raffle(raffle_id) > 0
 
 
 @DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_numbers')
