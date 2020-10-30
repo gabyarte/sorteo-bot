@@ -84,7 +84,7 @@ def out_handler(raffle_id, user_id, query):
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
     # TODO Notify admins
     chat = query.bot.get_chat(user_id)
-    notify_admins(f'El usuario [{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}.', chat)
+    notify_admins(f'El usuario [{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)
 
 
 def cancel_handler(query):
