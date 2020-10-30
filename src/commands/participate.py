@@ -6,6 +6,8 @@ from src.db.models import Raffle, User, Number
 from src.utils.utils import show_raffle_preview, in_batches, notify_admins
 from src.utils.emojis import CROSS, PENSIVE, WINK
 
+CANCEL_MARKUP = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
+
 
 # TODO Add privileges check
 # TODO List raffle pagination
@@ -21,18 +23,15 @@ def start(update, context):
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
                                               callback_data=f'show/{raffle._id},{user_id}')])
 
-    cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
-    raffles_menu.append(cancel_markup)
+    raffles_menu.append(CANCEL_MARKUP)
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
 def show_handler(raffle_id, user_id, query):
-    cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
-    info = None
-
     options_markup = []
     user = User.documents.get(user_id, key='telegram_id')
 
+    info = None
     another_raffle = user.can_participate_in_another_raffle()
     can_take_number = user.can_take_number(raffle_id)
     in_raffle = user.in_raffle(raffle_id)
@@ -47,7 +46,7 @@ def show_handler(raffle_id, user_id, query):
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle:
-        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
+        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, CANCEL_MARKUP]))
 
 
 def get_handler(raffle_id, user_id, query):
@@ -61,7 +60,7 @@ def get_handler(raffle_id, user_id, query):
         numbers_markup.append(markup)
 
     query.edit_message_caption('Escoge un número disponible:')
-    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(numbers_markup))
+    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(numbers_markup + [CANCEL_MARKUP]))
 
 
 def choice_handler(raffle_id, user_id, number, query):
@@ -69,10 +68,16 @@ def choice_handler(raffle_id, user_id, number, query):
 
     raffle = Raffle.documents.get(raffle_id)
     logging.info(f'[HANDLER choice] raffle - {raffle}')
+
+    chat = query.bot.get_chat(user_id)
+    notify_admins(f'El usuario [@{chat.username}]({chat.link}) '
+                  f'escogió el número *{number.number}* en el sorteo _{raffle.name}_', chat)
+
     if raffle and len(raffle.taken_numbers()) == raffle.max_numbers:
-        Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
-        # TODO Notify admins
-    
+        Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': False}})
+        notify_admins(f'Se agotaron los números en el sorteo {raffle.name}', chat)
+
+
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
 
 
@@ -84,9 +89,9 @@ def out_handler(raffle_id, user_id, query):
         Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
 
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
-    # TODO Notify admins
+
     chat = query.bot.get_chat(user_id)
-    notify_admins(f'El usuario [{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)
+    notify_admins(f'El usuario [@{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)
 
 
 def cancel_handler(query):
