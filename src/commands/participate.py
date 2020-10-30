@@ -69,7 +69,7 @@ def choice_handler(raffle_id, user_id, number, query):
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle and len(raffle.taken_numbers()) == raffle.max_numbers:
-        Raffle.documents.update({'_id': raffle._id}, {'is_open': False})
+        Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
         # TODO Notify admins
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
 
@@ -79,7 +79,7 @@ def out_handler(raffle_id, user_id, query):
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle and not raffle.is_open:
-        Raffle.documents.update({'_id': raffle._id}, {'is_open': True})
+        Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
 
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
     # TODO Notify admins
