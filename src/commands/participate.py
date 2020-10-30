@@ -68,7 +68,7 @@ def choice_handler(raffle_id, user_id, number, query):
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
 
     raffle = Raffle.documents.get(raffle_id)
-    if raffle and raffle.numbers_in_raffle() == raffle.max_numbers:
+    if raffle and len(raffle.taken_numbers()) == raffle.max_numbers:
         Raffle.documents.update({'_id': raffle._id}, {'is_open': False})
         # TODO Notify admins
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
