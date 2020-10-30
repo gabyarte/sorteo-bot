@@ -1,5 +1,7 @@
+from emoji import emojize
+
 CROSS = u"\u274C"
-WINK = u"\uF609"
-RELAX = u"\uF60C"
-PENSIVE = u"\uF614"
-SMIRK = u"\uF60F"
+WINK = emojize(':wink:')
+RELAX = emojize(':relieved:')
+PENSIVE = emojize(':pensive:')
+SMIRK = emojize(':smirk:')

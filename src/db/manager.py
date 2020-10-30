@@ -73,7 +73,7 @@ class Documents:
         return self._collection.distinct(distinct_key, query)
 
     def update(self, query, data):
-        return self._collection.replace_one(query, data)
+        return self._collection.update_one(query, data)
 
     def count(self, query):
         return self._collection.count_documents(query)

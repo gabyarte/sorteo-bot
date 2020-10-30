@@ -3,7 +3,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from src.db.models import Raffle, User, Number
-from src.utils.utils import show_raffle_preview, in_batches
+from src.utils.utils import show_raffle_preview, in_batches, notify_admins
 from src.utils.emojis import CROSS, PENSIVE, WINK
 
 
@@ -21,7 +21,8 @@ def start(update, context):
         raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
                                               callback_data=f'show/{raffle._id},{user_id}')])
 
-    # TODO Add cancel button in list
+    cancel_markup = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
+    raffles_menu.append(cancel_markup)
     update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
 
 
@@ -46,10 +47,7 @@ def show_handler(raffle_id, user_id, query):
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle:
-        # TODO Instead of reply_text, use edit_text so the list disappear
-        # TODO Also add go back to list
-        go_back_markup = [InlineKeyboardButton('Volver', callback_data=f'back/')]
-        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, go_back_markup, cancel_markup]), edit=True)
+        show_raffle_preview(raffle, query, info=info, markup=InlineKeyboardMarkup([options_markup, cancel_markup]))
 
 
 def get_handler(raffle_id, user_id, query):
@@ -67,15 +65,26 @@ def get_handler(raffle_id, user_id, query):
 
 
 def choice_handler(raffle_id, user_id, number, query):
-    # TODO Close raffle if there are no more numbers
     number = Number.documents.insert({'user_id': user_id, 'raffle_id': raffle_id, 'number': number})
+
+    raffle = Raffle.documents.get(raffle_id)
+    if raffle and raffle.numbers_in_raffle() == raffle.max_numbers:
+        Raffle.documents.update({'_id': raffle._id}, {'is_open': False})
+        # TODO Notify admins
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
 
 
 def out_handler(raffle_id, user_id, query):
     Number.documents.delete({'user_id': user_id, 'raffle_id': raffle_id})
+
+    raffle = Raffle.documents.get(raffle_id)
+    if raffle and not raffle.is_open:
+        Raffle.documents.update({'_id': raffle._id}, {'is_open': True})
+
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
     # TODO Notify admins
+    chat = query.bot.get_chat(user_id)
+    notify_admins(f'El usuario [{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}.', chat)
 
 
 def cancel_handler(query):
@@ -114,8 +123,5 @@ def callback_query_handler(update, context):
     if cmd == 'cancel':
         cancel_handler(query)
 
-    if cmd == 'back':
-        start(query, context)
-
-list_callback_query_handler = CallbackQueryHandler(callback_query_handler)
-list_raffle_handler = CommandHandler(['ver_sorteos', 'participar'], start)
+participate_callback_query_handler = CallbackQueryHandler(callback_query_handler)
+participate_raffle_handler = CommandHandler(['ver_sorteos', 'participar'], start)
