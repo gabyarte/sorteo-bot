@@ -36,12 +36,12 @@ def get_numbers(query):
     return [number.number for number in Number.documents.find(query)]
 
 
-def notify_admins(message, chat):
+def notify_admins(message, query):
     from src.db.models import User
 
     admins = User.documents.find({'is_admin': True})
     for admin in admins:
-        chat.send_message(text=message, parse_mode=ParseMode.MARKDOWN_V2)
+        query.bot.get_chat(admin.telegram_id).send_message(text=message, parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def list_raffles(raffles, message, user_id, updater, cancel=None):

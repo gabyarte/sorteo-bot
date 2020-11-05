@@ -68,11 +68,11 @@ def choice_handler(raffle_id, user_id, number, query):
 
     chat = query.bot.get_chat(user_id)
     notify_admins(f'El usuario [@{chat.username}]({chat.link}) '
-                  f'escogió el número *{number.number}* en el sorteo _{raffle.name}_', chat)
+                  f'escogió el número *{number.number}* en el sorteo _{raffle.name}_', query)
 
     if raffle and len(raffle.taken_numbers()) == raffle.max_numbers:
         Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': False}})
-        notify_admins(f'Se agotaron los números en el sorteo {raffle.name}', chat)
+        notify_admins(f'Se agotaron los números en el sorteo {raffle.name}', query)
 
 
     query.edit_message_caption(f'Felicidades! El número {number.number} dicen que es de la suerte {WINK}...')
@@ -89,7 +89,7 @@ def out_handler(raffle_id, user_id, query):
     query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup([CANCEL_MARKUP]))
 
     chat = query.bot.get_chat(user_id)
-    notify_admins(f'El usuario [@{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)
+    notify_admins(f'El usuario [@{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', query)
 
 
 def cancel_handler(query):
