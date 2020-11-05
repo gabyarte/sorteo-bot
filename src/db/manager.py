@@ -63,6 +63,10 @@ class Documents:
             return self._model(**data)
         return None
 
+    def get_or_insert(self, data):
+        document = self.find_one(data)
+        return self._model(**document) if document else self.insert(data)
+
     def delete(self, document):
         return self._collection.delete_many(document) 
 

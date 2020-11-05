@@ -1,12 +1,12 @@
 import logging
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import replymarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from src.db.models import Raffle, User, Number
-from src.utils.utils import show_raffle_preview, in_batches, notify_admins
-from src.utils.emojis import CROSS, PENSIVE, WINK
-
-CANCEL_MARKUP = [InlineKeyboardButton(CROSS, callback_data='cancel/')]
+from src.utils.utils import show_raffle_preview, in_batches, notify_admins, list_raffles
+from src.utils.emojis import PENSIVE, WINK
+from src.utils.markups import CANCEL_MARKUP
 
 
 # TODO Add privileges check
@@ -18,13 +18,7 @@ def start(update, context):
 
     raffles = Raffle.documents.find({'is_open': True})
 
-    raffles_menu = []
-    for raffle in raffles:
-        raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
-                                              callback_data=f'show/{raffle._id},{user_id}')])
-
-    raffles_menu.append(CANCEL_MARKUP)
-    update.message.reply_text('Lista de sorteos disponibles:', reply_markup=InlineKeyboardMarkup(raffles_menu))
+    list_raffles(raffles, 'Lista de sorteos disponibles:', user_id, update, CANCEL_MARKUP)
 
 
 def show_handler(raffle_id, user_id, query):
@@ -89,6 +83,7 @@ def out_handler(raffle_id, user_id, query):
         Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
 
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
+    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(reply_markup=[CANCEL_MARKUP]))
 
     chat = query.bot.get_chat(user_id)
     notify_admins(f'El usuario [@{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)

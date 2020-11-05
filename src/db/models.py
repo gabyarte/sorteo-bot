@@ -8,10 +8,12 @@ class User:
 
     def can_participate_in_another_raffle(self):
         raffles_count = len(Number.documents.distinct({'user_id': self.telegram_id}, 'raffle_id'))
+        logging.info(f'[MODEL can_participate_in_another_raffle] raffles_count - {raffles_count}')
         return raffles_count < 2
 
     def can_take_number(self, raffle_id):
         numbers_count = self.numbers_in_raffle(raffle_id)
+        logging.info(f'[MODEL can_take_number] numbers_count - {numbers_count}')
         return numbers_count < 2
 
     def numbers_in_raffle(self, raffle_id):
@@ -22,6 +24,11 @@ class User:
 
     def in_raffle(self, raffle_id):
         return self.numbers_in_raffle(raffle_id) > 0
+
+    def get_raffles(self):
+        raffles_id = Number.documents.distinct({'user_id': self.telegram_id}, 'raffle_id')
+        logging.info(f'[MODEL get_raffles] raffles_id - {raffles_id}')
+        return [Raffle.documents.get(raffle_id) for raffle_id in raffles_id]
 
 
 @DatabaseManager.collection('name', 'description', 'photo', 'is_open', 'max_numbers')

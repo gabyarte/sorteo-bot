@@ -1,4 +1,4 @@
-from telegram import ParseMode
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def show_raffle_preview(raffle, updater, info='', markup=None):
@@ -6,7 +6,7 @@ def show_raffle_preview(raffle, updater, info='', markup=None):
     raffle_desc = raffle.description
     raffle_available = f'Disponibles {raffle.max_numbers - raffle.taken_numbers_count()}/{raffle.max_numbers}'
 
-    raffle_description = f'*{raffle_name}*\n\n{raffle_desc}\n\n{raffle_available}'
+    raffle_description = f'{raffle_name}\n\n{raffle_desc}\n\n{raffle_available}'
 
     if info:
         raffle_description += f'\n\n_{info}_'
@@ -42,3 +42,13 @@ def notify_admins(message, chat):
     admins = User.documents.find({'is_admin': True})
     for admin in admins:
         chat.send_message(text=message, parse_mode=ParseMode.MARKDOWN_V2)
+
+
+def list_raffles(raffles, message, user_id, updater, cancel=None):
+    raffles_menu = []
+    for raffle in raffles:
+        raffles_menu.append([InlineKeyboardButton(f'{raffle.name} ({raffle.taken_numbers_count()}/{raffle.max_numbers})',
+                                              callback_data=f'show/{raffle._id},{user_id}')])
+
+    raffles_menu.append(cancel)
+    updater.message.reply_text(message, reply_markup=InlineKeyboardMarkup(raffles_menu))
