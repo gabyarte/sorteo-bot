@@ -1,24 +1,24 @@
 import logging
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
-from telegram import replymarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from src.db.models import Raffle, User, Number
 from src.utils.utils import show_raffle_preview, in_batches, notify_admins, list_raffles
-from src.utils.emojis import PENSIVE, WINK
+from src.utils.emojis import PENSIVE, WINK, DANGER
 from src.utils.markups import CANCEL_MARKUP
 
 
-# TODO Add privileges check
 # TODO List raffle pagination
 def start(update, context):
     user_id = update.message.from_user.id
 
     logging.info(f'[START] user_id - {user_id}')
 
-    raffles = Raffle.documents.find({'is_open': True})
+    user = User.documents.get(user_id, 'telegram_id')
+    if not user.is_blocked:
+        raffles = Raffle.documents.find({'is_open': True})
 
-    list_raffles(raffles, 'Lista de sorteos disponibles:', user_id, update, CANCEL_MARKUP)
+        list_raffles(raffles, 'Lista de sorteos disponibles:', user_id, update, CANCEL_MARKUP)
 
 
 def show_handler(raffle_id, user_id, query):
@@ -37,6 +37,9 @@ def show_handler(raffle_id, user_id, query):
 
     if in_raffle:
         options_markup.append(InlineKeyboardButton('Salir', callback_data=f'out/{raffle_id},{user_id}'))
+
+    if user.is_admin:
+        options_markup.append(InlineKeyboardButton('Participantes', callback_data=f'admin/{raffle_id}'))
 
     raffle = Raffle.documents.get(raffle_id)
     if raffle:
@@ -83,7 +86,7 @@ def out_handler(raffle_id, user_id, query):
         Raffle.documents.update({'_id': raffle._id}, {'$set': {'is_open': True}})
 
     query.edit_message_caption(f'Sentimos verte partir {PENSIVE}')
-    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(reply_markup=[CANCEL_MARKUP]))
+    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup([CANCEL_MARKUP]))
 
     chat = query.bot.get_chat(user_id)
     notify_admins(f'El usuario [@{chat.username}]({chat.link}) ha salido del sorteo {raffle.name}', chat)
@@ -91,6 +94,39 @@ def out_handler(raffle_id, user_id, query):
 
 def cancel_handler(query):
     query.message.delete()
+
+
+def admin_handler(raffle_id, query):
+    participants = Number.documents.find({'raffle_id': raffle_id})
+
+    grouped_participants = {}
+    for participant in participants:
+        if participant.user_id not in grouped_participants:
+            grouped_participants[participant.user_id] = [participant.number]
+        else:
+            grouped_participants[participant.user_id] += [participant.number]
+
+    list_participants = []
+    for user_id, numbers in grouped_participants.items():
+        chat = query.bot.get_chat(user_id)
+        name = f'{chat.first_name} {chat.last_name}' if chat.first_name and chat.last_name else chat.username
+        name = name if name else chat.first_name
+        numbers_str = str(numbers)
+        numbers_str = numbers_str[1:-1]
+        list_participants += [InlineKeyboardButton(f'{name} (numbers_str)', callback_data=f'block/{user_id}')]
+
+    query.edit_message_caption(f'Participantes\n\n({DANGER} Si selecciones un participante, lo puedes *BLOQUEAR* y no podrá participar en ningún sorteo)', parse_mode=ParseMode.MARKDOWN_V2)
+    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(list_participants))
+
+
+def block_handler(user_id, query):
+    User.documents.update({'telegram_id': user_id}, {'$set': {'is_blocked': True}})
+
+    Number.documents.delete({'user_id': user_id})
+
+    chat = query.bot.get_chat(user_id)
+
+    query.message.reply_text(f'El usuario [@{chat.username}]({chat.link}) ha sido bloquedo', parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def callback_query_handler(update, context):
@@ -121,6 +157,16 @@ def callback_query_handler(update, context):
         raffle_id, user_id = options[0], int(options[1])
         logging.info(f'[HANDLER] raffle_id - {raffle_id}\nuser_id - {user_id}')
         out_handler(raffle_id, user_id, query)
+
+    if cmd == 'admin':
+        raffle_id = options[0]
+        logging.info(f'[HANDLER] raffle_id - {raffle_id}')
+        admin_handler(raffle_id, query)
+
+    if cmd == 'block':
+        user_id = options[0]
+        logging.info(f'[HANDLER] user_id - {user_id}')
+        block_handler(user_id, query)
 
     if cmd == 'cancel':
         cancel_handler(query)
