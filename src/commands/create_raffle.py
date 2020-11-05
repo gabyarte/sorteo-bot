@@ -21,7 +21,7 @@ def set_name(update, context):
     name = update.message.text
     context.user_data['name'] = name
     update.message.reply_text(
-        f'El nombre *{name}* es realmente bonito. Ahora escribe una pequeña descripción.',
+        f'El nombre *{name}* es realmente bonito\. Ahora escribe una pequeña descripción\.',
         parse_mode=ParseMode.MARKDOWN_V2)
     return DESCRIPTION
 
