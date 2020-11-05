@@ -9,6 +9,7 @@ from src.commands.start import start_handler
 from src.commands.create_raffle import create_raffle_handler
 from src.commands.participate import participate_callback_query_handler, participate_raffle_handler
 from src.commands.list_my_raffles import my_raffles_handler
+from src.commands.all_raffles import all_raffles_handler
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -23,6 +24,7 @@ class RaffleBot:
         dp.add_handler(participate_raffle_handler)
         dp.add_handler(participate_callback_query_handler)
         dp.add_handler(my_raffles_handler)
+        dp.add_handler(all_raffles_handler)
 
         updater.start_webhook(listen="0.0.0.0",
                               port=PORT,

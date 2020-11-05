@@ -2,19 +2,25 @@ import logging
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
 from telegram import ParseMode
 
-from src.db.models import Raffle
+from src.db.models import Raffle, User
 from src.utils.utils import show_raffle_preview
 
 NAME, DESCRIPTION, PHOTO, MAX_NUMBERS = range(4)
 
 
 def start(update, context):
-    admin_name = update.message.from_user.name
-    update.message.reply_text(
-        f'Hola admin {admin_name}! Crea un nuevo sorteo siguiendo los pasos que te voy a ir describiendo.\n\n'
-        'Primero, el nombre del sorteo...'
-    )
-    return NAME
+    user_id = update.message.from_user.id
+    user = User.documents.get(user_id, 'telegram_id')
+
+    if user.is_admin:
+        admin_name = update.message.from_user.name
+        update.message.reply_text(
+            f'Hola admin {admin_name}! Crea un nuevo sorteo siguiendo los pasos que te voy a ir describiendo.\n\n'
+            'Primero, el nombre del sorteo...'
+        )
+        return NAME
+
+    return ConversationHandler.END
 
 
 def set_name(update, context):
