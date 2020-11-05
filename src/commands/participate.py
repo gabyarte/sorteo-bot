@@ -120,7 +120,7 @@ def admin_handler(raffle_id, query):
         list_participants.append([InlineKeyboardButton(f'{name} ({numbers_str})', callback_data=f'block/{user_id}')])
 
     query.edit_message_caption(f'Participantes\n\n{DANGER} Si selecciones un participante, lo puedes *BLOQUEAR* y no podrá participar en ningún sorteo', parse_mode=ParseMode.MARKDOWN_V2)
-    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(list_participants + CANCEL_MARKUP))
+    query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(list_participants + [CANCEL_MARKUP]))
 
 
 def block_handler(user_id, query):
