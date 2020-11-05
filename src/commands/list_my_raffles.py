@@ -9,7 +9,7 @@ from src.utils.markups import CANCEL_MARKUP
 def start(update, context):
     user_id = update.message.from_user.id
     user = User.documents.get(user_id, 'telegram_id')
-    if user.is_block:
+    if user.is_blocked:
         update.message.reply_text(f'Tu usuario ha sido bloqueado por los administradores {GRIMACING}')
     else:
         raffles = user.get_raffles()
