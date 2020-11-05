@@ -168,7 +168,7 @@ def callback_query_handler(update, context):
         admin_handler(raffle_id, query)
 
     if cmd == 'block':
-        user_id = options[0]
+        user_id = int(options[0])
         logging.info(f'[HANDLER] user_id - {user_id}')
         block_handler(user_id, query)
 
