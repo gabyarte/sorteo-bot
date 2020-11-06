@@ -20,7 +20,10 @@ def start(update, context):
 
             list_blocked.append([InlineKeyboardButton(f'{name}', callback_data=f'unblock/{blocked_user.telegram_id}')])
 
-        update.message.reply_text(f'Bloqueados\n\n{DANGER} Si selecciones un usuario bloqueado, lo puedes *DESBLOQUEAR* y podrá participar en los sorteos disponibles', parse_mode=ParseMode.MARKDOWN_V2, reply_markup=InlineKeyboardMarkup(list_blocked + [CANCEL_MARKUP]))
+        update.message.reply_text(f'Bloqueados\n\n{DANGER} Si selecciones un usuario bloqueado, '
+                                  'lo puedes *DESBLOQUEAR* y podrá participar en los sorteos disponibles',
+                                  parse_mode=ParseMode.MARKDOWN_V2,
+                                  reply_markup=InlineKeyboardMarkup(list_blocked + [CANCEL_MARKUP]))
 
 
 list_blocked_handler = CommandHandler('bloqueados', start)

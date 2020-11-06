@@ -17,7 +17,8 @@ def start(update, context):
         if raffles:
             list_raffles(raffles, 'Tus sorteos:', user_id, update, cancel=CANCEL_MARKUP)
         else:
-            update.message.reply_text(f'No tienes ningún sorteo {PENSIVE}. Para participar pon el comando /participar {WINK}.')
+            update.message.reply_text(f'No tienes ningún sorteo {PENSIVE}. '
+                                      f'Para participar pon el comando /participar {WINK}.')
 
 
 my_raffles_handler = CommandHandler('mis_sorteos', start)

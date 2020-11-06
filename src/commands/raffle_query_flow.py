@@ -109,7 +109,8 @@ def admin_handler(raffle_id, query):
 
         list_participants.append([InlineKeyboardButton(f'{name} ({numbers_str})', callback_data=f'block/{user_id}')])
 
-    query.edit_message_caption(f'Participantes\n\n{DANGER} Si selecciones un participante, lo puedes *BLOQUEAR* y no podrá participar en ningún sorteo', parse_mode=ParseMode.MARKDOWN_V2)
+    query.edit_message_caption(f'Participantes\n\n{DANGER} Si selecciones un participante, lo puedes *BLOQUEAR* '
+                                ' y no podrá participar en ningún sorteo', parse_mode=ParseMode.MARKDOWN_V2)
     query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(list_participants + [CANCEL_MARKUP]))
 
 
@@ -134,8 +135,10 @@ def unblock_handler(user_id, query):
 
     chat = query.bot.get_chat(user_id)
 
-    query.message.reply_text(f'El usuario [@{chat.username}]({chat.link}) ha sido desbloquedo exitosamente', parse_mode=ParseMode.MARKDOWN_V2)
-    chat.send_message(f'Los administradores te han desbloqueado {PARTY}. Ya puedes participar en los sorteos disponibles poniendo /participar.')
+    query.message.reply_text(f'El usuario [@{chat.username}]({chat.link}) ha sido desbloquedo exitosamente',
+                             parse_mode=ParseMode.MARKDOWN_V2)
+    chat.send_message(f'Los administradores te han desbloqueado {PARTY}. '
+                      'Ya puedes participar en los sorteos disponibles poniendo /participar.')
 
 
 def callback_query_handler(update, context):
