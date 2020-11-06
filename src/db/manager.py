@@ -47,6 +47,12 @@ class Documents:
     def _to_model(self, documents):
         return (self._model(**document) for document in documents)
 
+    def _clean_id_query(query):
+        _id = query.get('_id', None)
+        if _id and not isinstance(_id, ObjectId):
+            query.update({'_id': ObjectId(query['_id'])})
+        return query
+
     def all(self):
         return self.find({})
 
@@ -63,24 +69,30 @@ class Documents:
             return self._model(**data)
         return None
 
-    def get_or_insert(self, data):
-        document = self.find_one(data)
-        return self._model(**document) if document else self.insert(data)
+    def get_or_insert(self, query):
+        clean_query = self._clean_id_query(query)
+        document = self.find_one(clean_query)
+        return self._model(**document) if document else self.insert(clean_query)
 
     def delete(self, document):
-        return self._collection.delete_many(document) 
+        clean_query = self._clean_id_query(document)
+        return self._collection.delete_many(clean_query) 
 
     def find(self, query):
-        return self._to_model(self._collection.find(query, self._fields))
+        clean_query = self._clean_id_query(query)
+        return self._to_model(self._collection.find(clean_query, self._fields))
 
     def distinct(self, query, distinct_key):
-        return self._collection.distinct(distinct_key, query)
+        clean_query = self._clean_id_query(query)
+        return self._collection.distinct(distinct_key, clean_query)
 
     def update(self, query, data):
-        return self._collection.update_one(query, data)
+        clean_query = self._clean_id_query(query)
+        return self._collection.update_one(clean_query, data)
 
     def count(self, query):
-        return self._collection.count_documents(query)
+        clean_query = self._clean_id_query(query)
+        return self._collection.count_documents(clean_query)
 
     def __getattr__(self, name):
         return getattr(self._collection, name)
