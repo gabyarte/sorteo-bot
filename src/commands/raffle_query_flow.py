@@ -1,5 +1,7 @@
 import logging
 
+from bson import ObjectId
+
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import CallbackQueryHandler
 
@@ -116,13 +118,15 @@ def block_handler(user_id, query):
 
     raffles = Number.documents.distinct({'user_id': user_id}, 'raffle_id')
     logging.info(f'[HANDLER block] raffles - {raffles}')
-    Raffle.documents.update({'_id': {'$in': raffles}}, {'$set': {'is_open': True}})
+    Raffle.documents.update({'_id': {'$in': [ObjectId(raffle_id) for raffle_id in raffles]}},
+                            {'$set': {'is_open': True}})
 
     Number.documents.delete({'user_id': user_id})
 
     chat = query.bot.get_chat(user_id)
 
-    query.message.reply_text(f'El usuario [@{chat.username}]({chat.link}) ha sido bloquedo exitosamente', parse_mode=ParseMode.MARKDOWN_V2)
+    query.message.reply_text(f'El usuario [@{chat.username}]({chat.link}) ha sido bloquedo exitosamente',
+                             parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def unblock_handler(user_id, query):
