@@ -6,7 +6,7 @@ from src.utils.markups import CANCEL_MARKUP
 from src.utils.emojis import DANGER
 
 
-def start(update, context):
+def start(bot, update):
     user_id = update.message.from_user.id
     user = User.documents.get(user_id, 'telegram_id')
 
@@ -14,7 +14,7 @@ def start(update, context):
         blocked_users = User.documents.find({'is_blocked': True})
         list_blocked = []
         for blocked_user in blocked_users:
-            chat = update.bot.get_chat(blocked_user.telegram_id)
+            chat = bot.get_chat(blocked_user.telegram_id)
             name = f'{chat.first_name} {chat.last_name}' if chat.first_name and chat.last_name else chat.username
             name = name if name else chat.first_name
 
