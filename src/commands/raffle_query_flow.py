@@ -172,7 +172,7 @@ def callback_query_handler(update, context):
     if cmd == 'unblock':
         user_id = int(options[0])
         logging.info(f'[HANDLER] user_id - {user_id}')
-        block_handler(user_id, query)
+        unblock_handler(user_id, query)
 
     if cmd == 'cancel':
         cancel_handler(query)
