@@ -114,6 +114,9 @@ def admin_handler(raffle_id, query):
 def block_handler(user_id, query):
     User.documents.update({'telegram_id': user_id}, {'$set': {'is_blocked': True}})
 
+    raffles = Number.documents.distinct({'user_id': user_id}, 'raffle_id')
+    Raffle.documents.update({'_id': {'$in': raffles}}, {'$set': {'is_open': True}})
+
     Number.documents.delete({'user_id': user_id})
 
     chat = query.bot.get_chat(user_id)
