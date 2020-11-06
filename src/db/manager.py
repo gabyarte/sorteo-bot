@@ -47,7 +47,7 @@ class Documents:
     def _to_model(self, documents):
         return (self._model(**document) for document in documents)
 
-    def _clean_id_query(query):
+    def _clean_id_query(self, query):
         _id = query.get('_id', None)
         if _id and not isinstance(_id, ObjectId):
             query.update({'_id': ObjectId(query['_id'])})
